@@ -12,6 +12,7 @@ function Header() {
             height="30"
             className="d-inline-block align-top"
             alt="Octo Red Icon"
+            onClick={() => window.location.reload()}
           /> {' '}
           <span className="nav-title">CI Url Shortener</span>
         </Navbar.Brand>
