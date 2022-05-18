@@ -16,35 +16,36 @@ showResult() is called within buildLinkAndPost and showcases generated URL or er
 */
 function EntryForm() {
   const [showLink, setShowLink] = useState([]);
+  const [isCopyIconDisplayed, setCopyIconDisplay] = useState(false);
+  const [isUrlMsgDisplayed, setUrlMsgDisplay] = useState(false);
+  const [isResultVisible, setResultVisibility] = useState(false);
 
+  // Grabs link text and copies to clipboard. Changes icon color to signal operation to user.
   function copyLinkToClipboard() {
     var copyText = document.getElementById('link-ref');
     var copyIcon = document.getElementById('copy-icon');
     navigator.clipboard.writeText(copyText.href);
-    copyIcon.style.color = 'orangered';
+    copyIcon.style.color = '#0275d8';
     setTimeout(function() {
       copyIcon.style.color = 'white';
     }, 100);
   }
   // Makes result div visible and shows successful link, stub error, or a generic error message.
   function showResult(finalStub) {
-    var shortenedUrlDiv = document.getElementById('shortened-url-div');
-    shortenedUrlDiv.style.visibility = 'visible';
+    setResultVisibility(true);
     var linkRef = document.getElementById('link-ref');
-    var urlMsg = document.getElementById('url-msg');
-    var copyIcon = document.getElementById('copy-icon');
 
     // Only populated if POST returns a 201 status. Otherwise error output.
     if (finalStub) {
-      urlMsg.style.display = 'block';
+      setUrlMsgDisplay(true);
       setShowLink(ENDPOINT_URL + finalStub);
       var hrefLink = ENDPOINT_URL + finalStub;
       linkRef.href = hrefLink;
-      copyIcon.style.display = 'block';
+      setCopyIconDisplay(true);
     }
     else {
-      urlMsg.style.display = 'none';
-      copyIcon.style.display = 'none';
+      setUrlMsgDisplay(false);
+      setCopyIconDisplay(false);
       linkRef.href = '/'
     }
   }
@@ -99,10 +100,10 @@ function EntryForm() {
   // Initial Form Submit Handler. Calls to build and post link then calls to show link.
   function handleSubmit(event) {
     event.preventDefault();
-  
     buildLinkAndPost(event.target);
   }
 
+  // Component HTML. Input Form + Results Div
   return (
     <div>
       <Form className="entry-form" onSubmit={handleSubmit}>
@@ -118,17 +119,27 @@ function EntryForm() {
           <Form.Label>Optional Custom Stub</Form.Label>
           <Form.Control type="text" maxLength="8" placeholder="Enter Stub" />
           <Form.Text className="text-muted">
-            Leave blank to autogenerate a 4 character stub.<br/>Only Alphanumeric characters (a-z, 0-9) are allowed. Max length is 8 characters.
+            Leave blank to autogenerate a 4 character stub.<br/>
+            Only Alphanumeric characters (a-z, 0-9) are allowed. Max length is 8 characters.
           </Form.Text>
         </Form.Group>
         <Button variant="primary" type="submit" className="shorten-btn">
           Shorten
         </Button>
       </Form>
-      <div className="url-show" id="shortened-url-div">
-        <div id='url-msg'>Your Generated URL:</div>
+      <div className="url-show" id="shortened-url-div" 
+        style={isResultVisible ? {visibility: 'visible'} : {visibility: 'hidden'}}>
+        <div id='url-msg' 
+          style={isUrlMsgDisplayed ? {display: 'block'} : {display: 'none'}}>
+        Your Generated URL:
+        </div>
         <a className='link-ref' id='link-ref' href='/'>{showLink}</a>
-        <HiOutlineClipboardCopy size={32} className='copy-icon' id='copy-icon' onClick={copyLinkToClipboard}/>
+        <HiOutlineClipboardCopy 
+          size={32} 
+          className='copy-icon' id='copy-icon' 
+          onClick={copyLinkToClipboard} 
+          style={isCopyIconDisplayed ? {display: 'block'} : {display: 'none'}}
+        />
       </div>
     </div>
   )
