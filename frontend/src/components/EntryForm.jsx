@@ -4,12 +4,49 @@ import Button from 'react-bootstrap/Button'
 import './EntryForm.css'
 import { useState } from 'react';
 import axios from 'axios';
+import { HiOutlineClipboardCopy } from 'react-icons/hi';
 
 const ENDPOINT_URL = 'http://localhost:3000/';
 const API_URL = 'http://localhost:3000/shorturls';
 
+/*
+EntryForm() returns a form with URL and Stub inputs.
+On form submit we call buildLinkAndPost() which creates an object and makes the POST request.
+showResult() is called within buildLinkAndPost and showcases generated URL or error msg.
+*/
 function EntryForm() {
   const [showLink, setShowLink] = useState([]);
+
+  function copyLinkToClipboard() {
+    var copyText = document.getElementById('link-ref');
+    var copyIcon = document.getElementById('copy-icon');
+    navigator.clipboard.writeText(copyText.href);
+    copyIcon.style.color = 'orangered';
+    setTimeout(function() {
+      copyIcon.style.color = 'white';
+    }, 100);
+  }
+  // Makes result div visible and shows successful link, stub error, or a generic error message.
+  function showResult(finalStub) {
+    var shortenedUrlDiv = document.getElementById('shortened-url-div');
+    shortenedUrlDiv.style.visibility = 'visible';
+    var linkRef = document.getElementById('link-ref');
+    var urlMsg = document.getElementById('url-msg');
+    var copyIcon = document.getElementById('copy-icon');
+
+    // Only populated if POST returns a 201 status. Otherwise error output.
+    if (finalStub) {
+      urlMsg.style.display = 'block';
+      setShowLink(ENDPOINT_URL + finalStub);
+      var hrefLink = ENDPOINT_URL + finalStub;
+      linkRef.href = hrefLink;
+      copyIcon.style.display = 'block';
+    }
+    else {
+      urlMsg.style.display = 'none';
+      copyIcon.style.display = 'none';
+    }
+  }
 
   // Builds Link obj from submit and POSTs to RubyRails
   function buildLinkAndPost(data) {
@@ -18,46 +55,51 @@ function EntryForm() {
 
     // Validate stub submission, replace non-alphanumeric characters w/ Regex.
     var valid_stub = form_stub.replace(/[\W_]+/g,"");
+    valid_stub = valid_stub.trim();
+
+    // If no stub provided, generate a random alphanumeric string to act as stub.
+    if (!valid_stub) {
+      valid_stub = Math.random().toString(36).slice(2,6);
+    }
 
     const builtUrl = {
       original_url: form_url,
       stub: valid_stub
     }
-    console.log(builtUrl);
+
+    let finalStub = null;
 
     axios.post(API_URL, builtUrl)
     .then(function (response) {
+      // POST Success. 201 is 'CREATED' and is common success return.
       if (response.status === 201) {
-        console.log("Short Link successfully created.");
-      }
-      else {
-        console.log(response);
+        finalStub = valid_stub;
+        showResult(finalStub);
+      } else {
+        showResult(finalStub);
       }
     })
     .catch(function (err) {
+      // Special error message for Stub collisions.
       if (err.request.responseText === "{\"stub\":[\"has already been taken\"]}") {
-        console.log("Stub has already been taken!");
+        var stubTakenErrMessage = "Stub has already been taken. Please use a different stub.";
+        setShowLink(stubTakenErrMessage);
+        showResult(finalStub);
       }
       else {
         console.log(err);
+        var generalErrMessage = "An error has occurred. See console log for further information.";
+        setShowLink(generalErrMessage);
+        showResult(finalStub);
       }
     });
-
-    return valid_stub;
   }
 
   // Initial Form Submit Handler. Calls to build and post link then calls to show link.
   function handleSubmit(event) {
     event.preventDefault();
   
-    let valid_stub = buildLinkAndPost(event.target);
-
-    var linkRef = document.getElementById('link-ref');
-    setShowLink(ENDPOINT_URL + valid_stub);
-    var hrefLink = ENDPOINT_URL + valid_stub;
-    linkRef.href = hrefLink;
-    var shortenedUrlDiv = document.getElementById('shortened-url-div');
-    shortenedUrlDiv.style.visibility = 'visible';
+    buildLinkAndPost(event.target);
   }
 
   return (
@@ -83,8 +125,9 @@ function EntryForm() {
         </Button>
       </Form>
       <div className="url-show" id="shortened-url-div">
-        Your generated URL:
-        <a id='link-ref' href='http:/localhost:3000/'>{showLink}</a>
+        <div id='url-msg'>Your Generated URL:</div>
+        <a id='link-ref' href='/'>{showLink}</a>
+        <HiOutlineClipboardCopy size={32} className='copy-icon' id='copy-icon' onClick={copyLinkToClipboard}/>
       </div>
     </div>
   )

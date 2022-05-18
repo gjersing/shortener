@@ -1,16 +1,13 @@
 .entry-form {
   width: 80%;
-  margin: 4rem auto 0;
+  margin: 6rem auto 0;
   padding: 20px;
   border: 3px solid #212529;
   border-radius: 8px;
 }
 
-.shorten-btn {
-  background-color: #fa3d00;
-}
-
 .url-show {
+  font-size: 1.3rem;
   visibility: hidden;
   display: flex;
   justify-content: center;
@@ -18,7 +15,8 @@
   width: 70%;
   height: 4rem;
   margin: 0 auto 4rem;
-  background-color: #212529;
+  background-color: #3e444a;
+  border: 3px solid #212529;
   border-radius: 0 0 8px 8px;
   color: white;
 }
@@ -27,5 +25,9 @@ a {
   color: white;
   text-decoration: none;
   text-align: center;
+  margin-left: 10px;
+}
+
+.copy-icon {
   margin-left: 20px;
 }
