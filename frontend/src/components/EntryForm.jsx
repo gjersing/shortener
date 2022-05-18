@@ -45,6 +45,7 @@ function EntryForm() {
     else {
       urlMsg.style.display = 'none';
       copyIcon.style.display = 'none';
+      linkRef.href = '/'
     }
   }
 
@@ -126,7 +127,7 @@ function EntryForm() {
       </Form>
       <div className="url-show" id="shortened-url-div">
         <div id='url-msg'>Your Generated URL:</div>
-        <a id='link-ref' href='/'>{showLink}</a>
+        <a className='link-ref' id='link-ref' href='/'>{showLink}</a>
         <HiOutlineClipboardCopy size={32} className='copy-icon' id='copy-icon' onClick={copyLinkToClipboard}/>
       </div>
     </div>
