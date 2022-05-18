@@ -1,6 +1,4 @@
 import './App.css';
-import axios from 'axios';
-import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import Header from './components/Header';
