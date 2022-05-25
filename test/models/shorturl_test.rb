@@ -5,6 +5,7 @@ class ShorturlTest < ActiveSupport::TestCase
     @validUrl = Shorturl.create(original_url: "http://test.com", stub: "test")
     @noStubUrl = Shorturl.new(original_url: "http://test.com")
     @noOrigUrl = Shorturl.new(stub: "stub")
+    @specialCharUrl = Shorturl.new(original_url: "http://test.com", stub: "test##")
   end
 
   test "url should be valid" do
@@ -22,5 +23,9 @@ class ShorturlTest < ActiveSupport::TestCase
   test "stub should be unique" do
     duplicate_url = @validUrl.dup
     assert_not duplicate_url.valid?
+  end
+
+  test "stub should have no non-alphanumeric characters" do
+    assert_not @specialCharUrl.valid?
   end
 end
